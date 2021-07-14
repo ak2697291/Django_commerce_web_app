@@ -1,0 +1,14 @@
+{% extends "auctions/layout.html" %}
+
+{% block body%}
+{% if user.is_authenticated %}
+<form action={% url 'category_list' %} method="post">
+    {%csrf_token%}
+{% for category in categories%}
+<input type="submit" value={{category}} name = "category"class="btn btn-primary">
+{%endfor%}
+</form>
+{% else %}
+<h1>Please login with your account</h1>
+{% endif %}
+{% endblock %}

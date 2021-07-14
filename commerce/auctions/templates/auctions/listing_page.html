@@ -1,0 +1,97 @@
+{% extends "auctions/layout.html" %}
+{% block body%}
+{% if user.is_authenticated %}
+
+<h2>Listing: {{listing.title}}</h2>
+{%if close%}
+<div class="alert alert-danger" role="alert">
+  This listing has been closed by {{created_by}} won by {{winner}} with highest Bidding of {{winning_bid}}
+</div>
+{%else%}
+{%if check_watchlist is None%}
+<form action="{% url 'watchlist_add' %}" method="post">
+    {%csrf_token%}
+    <button type="submit" value = "{{listing.title}}" class="btn btn-success" name = "add">ADD TO WATCHLIST</button>
+</form>
+{% else%}
+<form action="{% url 'watchlist_remove' %}" method="post">
+    {%csrf_token%}
+<button class="btn btn-danger" name="remove" value="{{listing.title}}" type="submit">REMOVE FROM WATCHLIST</button>
+</form>
+
+{% endif %}
+
+{%if authority%}
+<form action="{% url 'delete_listing' %}" method="post">
+  {%csrf_token%}
+  <br>
+  <input type="hidden" name="title" value="{{listing.title}}">
+  <input type="submit" value="CLOSE LISTING" class="btn btn-danger">
+</form>
+{%else%}
+{%endif%}
+
+<div class="card mb-3">
+    <img src="{{listing.image_url}}" class="card-img-top" alt="..." style="width: 30vw; height: 30vw;">
+    <div class="card-body">
+      <p class="card-text">{{listing.description}}</p>
+      <h3>Current Bid: ${{current_bid}}</h3>
+      <small>Only Bids Greater Or Equal To Current Bid Are Acceptable</small>
+      {% if making_bid %}
+      {%if status%}
+      <div class="alert alert-success" role="alert">
+        Your Bidding Was Successful 
+      </div>
+      {% else %}
+      <div class="alert alert-danger" role="alert">
+        Bid Again According To The Above Criteria
+      </div>
+      {% endif %}
+      {%else%}
+      {%endif%}
+      <form action="{% url 'add_bid' %}" method="POST" >
+          {%csrf_token%}
+          <input type="number" name="bid_amount" class="form-control">
+          <br>
+          <input type="hidden" name="title" value="{{listing.title}}">
+          <input type="submit" class="btn btn-success" value="Place Bid">
+      </form>
+      <br>
+      <h5>Listed By: {{listing.user}}</h5>
+      <p class="card-text"><small class="text-muted">Listed on {{listing.date}}</small></p>
+      <form method="POST" action="{% url 'add_comments'%}">
+        {%csrf_token%}
+       <input type="text" name="comment_data" class="form-control" placeholder="Enter your comment">
+       <input type="hidden" name="title" value="{{listing.title}}">
+       <br>
+       <input type="submit" value="ADD COMMENT" class="btn btn-success">
+      </form>
+    </div>
+  </div>
+  {%endif%}
+  <!-- for comment section -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Comment Section</h3>
+    </div>
+    {% if comments_data %}
+    <div class="card-body">
+      {% for comment  in comments_data %}
+      <blockquote class="blockquote mb-0">
+        <footer class="blockquote-footer"> {{comment.user}}<cite title="Source Title"> On {{comment.date}}</cite></footer>
+        <p>{{comment.data}}</p>
+        <hr>
+      </blockquote>
+       {% endfor %}
+      {% else %}
+      <blockquote class="blockquote mb-0">
+        <h6>Be The First One To Comment</h6>
+      </blockquote>
+    
+    </div>
+    {% endif %}
+  </div>
+{% else %}
+<h1>Please login with your account</h1>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+
+{% block body%}
+{% if user.is_authenticated %}
+<h2>{{category_name}}</h2>
+{% for listing in items%}
+<form action= {% url 'listing_page' %}  method="post">
+  {%csrf_token%}
+ <button  name = "listing" value = "{{listing.title}}" type="submit" class="btn">
+ <div class="card mb-4" style="max-width: 600px;">
+   <div class="row g-0">
+     <div class="col-md-4">
+       <img src={{listing.image_url}} alt="image" style="max-width: 200px;">
+     </div>
+     <div class="col-md-8">
+       <div class="card-body">
+         <h5 class="card-title">{{listing.title}}</h5>
+         <p class="card-text">Price: $ {{listing.starting_bid}}</p>
+         <p class="card-text"><small class="text-muted">Created {{listing.date}}</small></p>
+       </div>
+     </div>
+   </div>
+ </div>
+ </button>
+</form>
+  {% empty %}
+  <div>no active listing</div>
+{%endfor%}
+
+{% else %}
+<h1>Please login with your account</h1>
+{% endif %}
+{% endblock %}
